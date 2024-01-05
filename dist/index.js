@@ -98273,23 +98273,27 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const wait_1 = __nccwpck_require__(5259);
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function run(artifactUploader) {
     try {
-        const ms = core.getInput('milliseconds');
-        // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-        core.debug(`Waiting ${ms} milliseconds ...`);
-        // Log the current timestamp, wait, then log the new timestamp
-        core.debug(new Date().toTimeString());
-        await (0, wait_1.wait)(parseInt(ms, 10));
-        core.debug(new Date().toTimeString());
+        core.startGroup('Validate Inputs');
+        const inputs = {
+            runCommand: core.getInput('run-command'),
+            runArgs: core.getInput('run-arguments'),
+            resultsArtifactName: core.getInput('results-artifact-name')
+        };
+        // TODO: Add validation here
+        core.info(JSON.stringify(inputs));
+        core.endGroup();
+        core.startGroup('Uploading artifact');
         await artifactUploader.uploadArtifact('dummy-artifact', ['./README.md']);
-        // Set outputs for other workflow steps to use
-        core.setOutput('time', new Date().toTimeString());
+        core.endGroup();
+        core.startGroup('Setting Outputs');
+        core.setOutput('exit-code', 0);
+        core.endGroup();
     }
     catch (error) {
         // Fail the workflow run if an error occurs
@@ -98298,31 +98302,6 @@ async function run(artifactUploader) {
     }
 }
 exports.run = run;
-
-
-/***/ }),
-
-/***/ 5259:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.wait = void 0;
-/**
- * Wait for a number of milliseconds.
- * @param milliseconds The number of milliseconds to wait.
- * @returns {Promise<string>} Resolves with 'done!' after the wait is over.
- */
-async function wait(milliseconds) {
-    return new Promise(resolve => {
-        if (isNaN(milliseconds)) {
-            throw new Error('milliseconds not a number');
-        }
-        setTimeout(() => resolve('done!'), milliseconds);
-    });
-}
-exports.wait = wait;
 
 
 /***/ }),

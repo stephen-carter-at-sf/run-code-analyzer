@@ -1,5 +1,4 @@
 import * as core from '@actions/core'
-import { wait } from './wait'
 
 /**
  * The main function for the action.
@@ -7,24 +6,33 @@ import { wait } from './wait'
  */
 export async function run(artifactUploader: ArtifactUploader): Promise<void> {
     try {
-        const ms: string = core.getInput('milliseconds')
+        core.startGroup('Validate Inputs')
+        const inputs: Inputs = {
+            runCommand: core.getInput('run-command'),
+            runArgs: core.getInput('run-arguments'),
+            resultsArtifactName: core.getInput('results-artifact-name')
+        }
+        // TODO: Add validation here
+        core.info(JSON.stringify(inputs))
+        core.endGroup()
 
-        // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-        core.debug(`Waiting ${ms} milliseconds ...`)
-
-        // Log the current timestamp, wait, then log the new timestamp
-        core.debug(new Date().toTimeString())
-        await wait(parseInt(ms, 10))
-        core.debug(new Date().toTimeString())
-
+        core.startGroup('Uploading artifact')
         await artifactUploader.uploadArtifact('dummy-artifact', ['./README.md'])
+        core.endGroup()
 
-        // Set outputs for other workflow steps to use
-        core.setOutput('time', new Date().toTimeString())
+        core.startGroup('Setting Outputs')
+        core.setOutput('exit-code', 0)
+        core.endGroup()
     } catch (error) {
         // Fail the workflow run if an error occurs
         if (error instanceof Error) core.setFailed(error.message)
     }
+}
+
+export type Inputs = {
+    runCommand: string
+    runArgs: string
+    resultsArtifactName: string
 }
 
 export interface ArtifactUploader {
