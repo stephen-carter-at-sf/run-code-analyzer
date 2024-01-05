@@ -1,5 +1,5 @@
 /**
- * The entrypoint for the action.
+ * Script based entrypoint for the action.
  */
 import { run } from './main'
 
