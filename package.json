@@ -1,21 +1,20 @@
 {
-  "name": "typescript-action",
-  "description": "GitHub Actions TypeScript template",
-  "version": "0.0.0",
-  "author": "",
+  "name": "run-code-analyzer",
+  "description": "GitHub Action to run the Salesforce Code Analyzer",
+  "version": "0.1.0",
+  "author": "The Salesforce Code Analyzer Team",
   "private": true,
-  "homepage": "https://github.com/actions/typescript-action",
+  "homepage": "https://github.com/forcedotcom/run-code-analyzer",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/forcedotcom/run-code-analyzer.git"
   },
   "bugs": {
-    "url": "https://github.com/actions/typescript-action/issues"
+    "url": "https://github.com/forcedotcom/run-code-analyzer/issues"
   },
   "keywords": [
     "actions",
-    "node",
-    "setup"
+    "salesforce code analyzer"
   ],
   "exports": {
     ".": "./dist/index.js"
@@ -35,7 +34,7 @@
     "test": "jest",
     "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package"
   },
-  "license": "MIT",
+  "license": "BSD-3-Clause license",
   "jest": {
     "preset": "ts-jest",
     "verbose": true,
