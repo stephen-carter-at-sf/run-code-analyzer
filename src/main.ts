@@ -1,12 +1,11 @@
 import * as core from '@actions/core'
 import { wait } from './wait'
-import { DefaultArtifactClient } from '@actions/artifact'
 
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
-export async function run(): Promise<void> {
+export async function run(artifactUploader: ArtifactUploader): Promise<void> {
   try {
     const ms: string = core.getInput('milliseconds')
 
@@ -18,8 +17,7 @@ export async function run(): Promise<void> {
     await wait(parseInt(ms, 10))
     core.debug(new Date().toTimeString())
 
-    const artifact: DefaultArtifactClient = new DefaultArtifactClient()
-    await artifact.uploadArtifact('dummy-artifact', ['./README.md'], './')
+    await artifactUploader.uploadArtifact('dummy-artifact', ['./README.md'])
 
     // Set outputs for other workflow steps to use
     core.setOutput('time', new Date().toTimeString())
@@ -27,4 +25,8 @@ export async function run(): Promise<void> {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)
   }
+}
+
+export interface ArtifactUploader {
+  uploadArtifact(artifactName: string, artifactFiles: string[]): Promise<void>
 }

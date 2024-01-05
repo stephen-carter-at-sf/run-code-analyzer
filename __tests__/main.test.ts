@@ -8,6 +8,7 @@
 
 import * as core from '@actions/core'
 import * as main from '../src/main'
+import { ArtifactUploader } from '../src/main'
 
 // Mock the action's main function
 const runMock = jest.spyOn(main, 'run')
@@ -44,15 +45,18 @@ describe('action', () => {
       }
     })
 
-    await main.run()
+    const artifactUploader: FakeArtifactUploader = new FakeArtifactUploader()
+    await main.run(artifactUploader)
     expect(runMock).toHaveReturned()
 
-    // Verify that all of the core library functions were called correctly
+    // Verify that all the core library functions were called correctly
     expect(debugMock).toHaveBeenNthCalledWith(1, 'Waiting 500 milliseconds ...')
     expect(debugMock).toHaveBeenNthCalledWith(2, expect.stringMatching(timeRegex))
     expect(debugMock).toHaveBeenNthCalledWith(3, expect.stringMatching(timeRegex))
     expect(setOutputMock).toHaveBeenNthCalledWith(1, 'time', expect.stringMatching(timeRegex))
     expect(errorMock).not.toHaveBeenCalled()
+    expect(artifactUploader.artifactName).toEqual('dummy-artifact')
+    expect(artifactUploader.artifactFiles).toEqual(['./README.md'])
   })
 
   it('sets a failed status', async () => {
@@ -66,11 +70,21 @@ describe('action', () => {
       }
     })
 
-    await main.run()
+    await main.run(new FakeArtifactUploader())
     expect(runMock).toHaveReturned()
 
-    // Verify that all of the core library functions were called correctly
+    // Verify that all the core library functions were called correctly
     expect(setFailedMock).toHaveBeenNthCalledWith(1, 'milliseconds not a number')
     expect(errorMock).not.toHaveBeenCalled()
   })
 })
+
+class FakeArtifactUploader implements ArtifactUploader {
+  artifactName = ''
+  artifactFiles: string[] = []
+
+  async uploadArtifact(artifactName: string, artifactFiles: string[]): Promise<void> {
+    this.artifactName = artifactName
+    this.artifactFiles = artifactFiles
+  }
+}
