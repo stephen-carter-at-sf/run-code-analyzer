@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import { wait } from './wait'
+import { DefaultArtifactClient } from '@actions/artifact'
 
 /**
  * The main function for the action.
@@ -16,6 +17,9 @@ export async function run(): Promise<void> {
     core.debug(new Date().toTimeString())
     await wait(parseInt(ms, 10))
     core.debug(new Date().toTimeString())
+
+    const artifact: DefaultArtifactClient = new DefaultArtifactClient()
+    await artifact.uploadArtifact('dummy-artifact', ['./README.md'], './')
 
     // Set outputs for other workflow steps to use
     core.setOutput('time', new Date().toTimeString())
