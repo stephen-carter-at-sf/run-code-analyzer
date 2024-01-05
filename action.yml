@@ -20,18 +20,18 @@ inputs:
   run-arguments:
     description: |-
       The arguments to pass to the run command chosen by the run-command input.
-      Default value: "--normalize-severity --outfile results.json"
+      Default value: "--normalize-severity"
       
       The "--normalize-severity" argument is currently required to be included in your run arguments.
       
       If an output file is specified with the --outfile argument, then that file will be uploaded in the results artifact.
-      Otherwise, if --outfile is not specified, then a "results.json" file will be uploaded in the results artifact.
+      Otherwise, a "salesforceCodeAnalyzerResults.json" file will be uploaded in the results artifact.
       
       See also:
       - [scanner run command reference](https://forcedotcom.github.io/sfdx-scanner/en/v3.x/scanner-commands/run)
       - [scanner run dfa command reference](https://forcedotcom.github.io/sfdx-scanner/en/v3.x/scanner-commands/dfa)
     required: false
-    default: '--normalize-severity --outfile results.json'
+    default: '--normalize-severity'
   results-artifact-name:
     description: |-
       The name of the zip archive job artifact where the resulting output file will be uploaded to.

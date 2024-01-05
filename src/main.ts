@@ -1,40 +1,55 @@
-import * as core from '@actions/core'
+import { extractOutfileFromRunArguments } from './utils'
+import { Dependencies } from './dependencies'
+import { EnvironmentVariables, Inputs } from './types'
+
+const INTERNAL_OUTFILE = 'salesforceCodeAnalyzerResults.json'
 
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
-export async function run(artifactUploader: ArtifactUploader): Promise<void> {
+export async function run(dependencies: Dependencies): Promise<void> {
     try {
-        core.startGroup('Validate Inputs')
-        const inputs: Inputs = {
-            runCommand: core.getInput('run-command'),
-            runArgs: core.getInput('run-arguments'),
-            resultsArtifactName: core.getInput('results-artifact-name')
+        dependencies.startGroup('Preparing Environment')
+        // TODO: NICE TO HAVES:
+        // * Verify that Salesforce CLI "sf" is installed
+        // * Verify that sfdx-scanner plugin is installed (and if not, then install it as a separate step)
+        // * Echo version of sfdx-scanner in use
+        const inputs: Inputs = dependencies.getInputs()
+        dependencies.endGroup()
+
+        dependencies.startGroup('Running Salesforce Code Analyzer')
+        const command = `sf scanner ${inputs.runCommand} ${inputs.runArgs}`
+        const envVars: EnvironmentVariables = {
+            // Without increasing the heap allocation, node often fails. So we increase it to 8gb which should be enough
+            NODE_OPTIONS: '--max-old-space-size=8192',
+            // We always want to control our own internal outfile for reliable processing
+            SCANNER_INTERNAL_OUTFILE: INTERNAL_OUTFILE
         }
-        // TODO: Add validation here
-        core.info(JSON.stringify(inputs))
-        core.endGroup()
+        if (process.env['JAVA_HOME_11_X64']) {
+            // We prefer to run on java 11 if available since the default varies across the different GitHub runners.
+            envVars['JAVA_HOME'] = process.env['JAVA_HOME_11_X64']
+        }
+        const exitCode: number = await dependencies.execCommand(command, envVars)
+        dependencies.endGroup()
 
-        core.startGroup('Uploading artifact')
-        await artifactUploader.uploadArtifact('dummy-artifact', ['./README.md'])
-        core.endGroup()
+        dependencies.startGroup('Uploading Artifact')
+        const userOutfile: string = extractOutfileFromRunArguments(inputs.runArgs)
+        const artifactFile: string = userOutfile.length > 0 ? userOutfile : INTERNAL_OUTFILE
+        await dependencies.uploadArtifact(inputs.resultsArtifactName, [artifactFile])
+        dependencies.endGroup()
 
-        core.startGroup('Setting Outputs')
-        core.setOutput('exit-code', 0)
-        core.endGroup()
+        dependencies.startGroup('Analyzing Results')
+        // TODO: Process the internal outfile
+        dependencies.endGroup()
+
+        dependencies.startGroup('Finalizing Summary and Outputs')
+        // TODO: set the summary and remaining outputs
+        dependencies.setOutput('exit-code', exitCode.toString())
+        dependencies.endGroup()
     } catch (error) {
-        // Fail the workflow run if an error occurs
-        if (error instanceof Error) core.setFailed(error.message)
+        if (error instanceof Error) {
+            dependencies.fail(error.message)
+        }
     }
-}
-
-export type Inputs = {
-    runCommand: string
-    runArgs: string
-    resultsArtifactName: string
-}
-
-export interface ArtifactUploader {
-    uploadArtifact(artifactName: string, artifactFiles: string[]): Promise<void>
 }
