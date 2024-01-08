@@ -7,8 +7,8 @@ import * as exec from '@actions/exec'
 import * as core from '@actions/core'
 
 class RuntimeCommandExecutor implements CommandExecutor {
-    async exec(command: string, envVars: EnvironmentVariables): Promise<number> {
-        console.info(JSON.stringify(process.env))
+    async exec(command: string, envVars: EnvironmentVariables = {}): Promise<number> {
+        core.error(JSON.stringify(process.env))
         const execOutput: exec.ExecOutput = await exec.getExecOutput(command, [], {
             env: mergeWithProcessEnvVars(envVars),
             ignoreReturnCode: true,
