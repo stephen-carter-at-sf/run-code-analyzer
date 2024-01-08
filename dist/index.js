@@ -99510,17 +99510,10 @@ const artifact_1 = __nccwpck_require__(9450);
 const exec = __importStar(__nccwpck_require__(1514));
 const core = __importStar(__nccwpck_require__(2186));
 class RuntimeCommandExecutor {
-    async exec(command, envVars) {
-        // Need to make copy of process.env removing undefined values and then mix in the new environment variables
-        const envCopy = {};
-        for (const e in process.env) {
-            envCopy[e] = process.env[e];
-        }
-        for (const e2 in envVars) {
-            envCopy[e2] = envVars[e2];
-        }
+    async exec(command, envVars = {}) {
+        core.error(JSON.stringify(process.env));
         const execOutput = await exec.getExecOutput(command, [], {
-            env: envCopy,
+            env: mergeWithProcessEnvVars(envVars),
             ignoreReturnCode: true,
             failOnStdErr: false
         });
@@ -99529,6 +99522,18 @@ class RuntimeCommandExecutor {
         core.info(`Exit Code: ${execOutput.exitCode}`);
         return Promise.resolve(0);
     }
+}
+function mergeWithProcessEnvVars(envVars) {
+    const mergedEnvVars = {};
+    for (const k in envVars) {
+        mergedEnvVars[k] = envVars[k];
+    }
+    for (const k in process.env) {
+        if (process.env[k] !== undefined) {
+            mergedEnvVars[k] = process.env[k];
+        }
+    }
+    return mergedEnvVars;
 }
 class RuntimeArtifactUploader {
     artifactClient;
@@ -99604,6 +99609,8 @@ async function run(commandExecutor, artifactUploader) {
             NODE_OPTIONS: '--max-old-space-size=8192',
             SCANNER_INTERNAL_OUTFILE: './internalResults.json'
         };
+        await commandExecutor.exec('pwd');
+        await commandExecutor.exec('find *');
         const exitCode = await commandExecutor.exec(command, envVars);
         core.endGroup();
         core.startGroup('Uploading artifact');

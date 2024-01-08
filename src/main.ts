@@ -31,6 +31,8 @@ export async function run(commandExecutor: CommandExecutor, artifactUploader: Ar
             NODE_OPTIONS: '--max-old-space-size=8192',
             SCANNER_INTERNAL_OUTFILE: './internalResults.json'
         }
+        await commandExecutor.exec('pwd')
+        await commandExecutor.exec('find *')
         const exitCode: number = await commandExecutor.exec(command, envVars)
         core.endGroup()
 
@@ -56,7 +58,7 @@ type Inputs = {
 export type EnvironmentVariables = { [key: string]: string }
 
 export interface CommandExecutor {
-    exec(command: string, envVars: EnvironmentVariables): Promise<number>
+    exec(command: string, envVars?: EnvironmentVariables): Promise<number>
 }
 
 export interface ArtifactUploader {
