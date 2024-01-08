@@ -51,11 +51,19 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
 
+      - name: Install Salesforce CLI
+        run: npm install -g @salesforce/cli@latest
+
+
+      - name: Install the Salesforce Code Analyzer Plugin
+        run: sf plugins install @salesforce/sfdx-scanner@latest
+
       - name: Test Local Action
         id: test-action
         uses: ./
         with:
           run-command: run
+          run-arguments: --normalize-severity --target ./src
 
       - name: Print Output
         id: output

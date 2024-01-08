@@ -3,6 +3,7 @@ import { FakeDependencies } from './fakes'
 
 describe('action', () => {
     it('Test default values', async () => {
+        process.env['JAVA_HOME_11_X64'] = 'SomeJavaPath'
         const dependencies: FakeDependencies = new FakeDependencies()
         await main.run(dependencies)
 
@@ -11,7 +12,8 @@ describe('action', () => {
             command: 'sf scanner run --normalize-severity',
             envVars: {
                 NODE_OPTIONS: '--max-old-space-size=8192',
-                SCANNER_INTERNAL_OUTFILE: 'salesforceCodeAnalyzerResults.json'
+                SCANNER_INTERNAL_OUTFILE: 'salesforceCodeAnalyzerResults.json',
+                JAVA_HOME: 'SomeJavaPath'
             }
         })
 
