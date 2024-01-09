@@ -3,6 +3,7 @@ import { DefaultArtifactClient } from '@actions/artifact'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import { EnvironmentVariables, Inputs } from './types'
+import { ArtifactClient } from '@actions/artifact/lib/internal/client'
 
 /**
  * Interface to extract out dependencies used by the action
@@ -27,9 +28,9 @@ export interface Dependencies {
  * Class that wires up the runtime dependencies
  */
 export class RuntimeDependencies implements Dependencies {
-    private readonly artifactClient: DefaultArtifactClient
-    constructor() {
-        this.artifactClient = new DefaultArtifactClient()
+    private readonly artifactClient: ArtifactClient
+    constructor(artifactClient: ArtifactClient = new DefaultArtifactClient()) {
+        this.artifactClient = artifactClient
     }
 
     startGroup(name: string): void {
@@ -49,12 +50,11 @@ export class RuntimeDependencies implements Dependencies {
     }
 
     async execCommand(command: string, envVars: EnvironmentVariables = {}): Promise<number> {
-        const execOutput: exec.ExecOutput = await exec.getExecOutput(command, [], {
+        return exec.exec(command, [], {
             env: mergeWithProcessEnvVars(envVars),
             ignoreReturnCode: true,
             failOnStdErr: false
         })
-        return Promise.resolve(execOutput.exitCode)
     }
 
     async uploadArtifact(artifactName: string, artifactFiles: string[]): Promise<void> {

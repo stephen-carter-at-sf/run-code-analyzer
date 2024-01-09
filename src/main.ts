@@ -2,7 +2,11 @@ import { extractOutfileFromRunArguments } from './utils'
 import { Dependencies } from './dependencies'
 import { EnvironmentVariables, Inputs } from './types'
 
-const INTERNAL_OUTFILE = 'salesforceCodeAnalyzerResults.json'
+const INTERNAL_OUTFILE = 'SalesforceCodeAnalyzerResults.json'
+
+export const MESSAGES = {
+    MISSING_NORMALIZE_SEVERITY: 'Missing required --normalize-severity option from run-arguments input.'
+}
 
 /**
  * The main function for the action.
@@ -16,6 +20,7 @@ export async function run(dependencies: Dependencies): Promise<void> {
         // * Verify that sfdx-scanner plugin is installed (and if not, then install it as a separate step)
         // * Echo version of sfdx-scanner in use
         const inputs: Inputs = dependencies.getInputs()
+        validateInputs(inputs)
         dependencies.endGroup()
 
         dependencies.startGroup('Running Salesforce Code Analyzer')
@@ -51,5 +56,11 @@ export async function run(dependencies: Dependencies): Promise<void> {
         if (error instanceof Error) {
             dependencies.fail(error.message)
         }
+    }
+}
+
+function validateInputs(inputs: Inputs): void {
+    if (!inputs.runArgs.toLowerCase().includes('--normalize-severity')) {
+        throw new Error(MESSAGES.MISSING_NORMALIZE_SEVERITY)
     }
 }

@@ -25,7 +25,7 @@ inputs:
       The "--normalize-severity" argument is currently required to be included in your run arguments.
       
       If an output file is specified with the --outfile argument, then that file will be uploaded in the results artifact.
-      Otherwise, a "salesforceCodeAnalyzerResults.json" file will be uploaded in the results artifact.
+      Otherwise, a "SalesforceCodeAnalyzerResults.json" file will be uploaded in the results artifact.
       
       See also:
       - [scanner run command reference](https://forcedotcom.github.io/sfdx-scanner/en/v3.x/scanner-commands/run)
