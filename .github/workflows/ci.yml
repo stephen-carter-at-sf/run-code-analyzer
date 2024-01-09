@@ -63,7 +63,7 @@ jobs:
         uses: ./
         with:
           run-command: run
-          run-arguments: --normalize-severity --target ./src
+          run-arguments: --normalize-severity --target "./src,./__tests__" --outfile results.json --verbose
 
       - name: Print Output
         id: output

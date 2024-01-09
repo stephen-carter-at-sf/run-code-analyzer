@@ -37,17 +37,17 @@ describe('Tests for extractOutfileFromRunArguments', () => {
         expect(outfile).toEqual('someFile.html')
     })
 
-    it('Test single quotes specified', async () => {
+    it('Test single quotes wraps name', async () => {
         const outfile = extractOutfileFromRunArguments("--target . -o 'someFile.json' --normalize-severity")
         expect(outfile).toEqual('someFile.json')
     })
 
-    it('Test double quotes specified', async () => {
+    it('Test double quotes wraps name', async () => {
         const outfile = extractOutfileFromRunArguments('-t . --normalize-severity -o "someFile.xml"')
         expect(outfile).toEqual('someFile.xml')
     })
 
-    it('Test space in file name with quotes specified', async () => {
+    it('Test space in file name with quotes', async () => {
         const outfile = extractOutfileFromRunArguments(
             '-o "some file  with spaces.and.multiple.ext" --normalize-severity'
         )
@@ -59,6 +59,11 @@ describe('Tests for extractOutfileFromRunArguments', () => {
         expect(outfile1).toEqual('some=file.json')
         const outfile2 = extractOutfileFromRunArguments('-o=some==other=file.json')
         expect(outfile2).toEqual('some==other=file.json')
+    })
+
+    it('Test quote in file name', async () => {
+        const outfile1 = extractOutfileFromRunArguments('--outfile "some\'file.json"')
+        expect(outfile1).toEqual("some'file.json")
     })
 
     it('Test trailing -o', async () => {
