@@ -99512,8 +99512,8 @@ const exec = __importStar(__nccwpck_require__(1514));
  */
 class RuntimeDependencies {
     artifactClient;
-    constructor() {
-        this.artifactClient = new artifact_1.DefaultArtifactClient();
+    constructor(artifactClient = new artifact_1.DefaultArtifactClient()) {
+        this.artifactClient = artifactClient;
     }
     startGroup(name) {
         core.startGroup(name);
@@ -99529,12 +99529,11 @@ class RuntimeDependencies {
         };
     }
     async execCommand(command, envVars = {}) {
-        const execOutput = await exec.getExecOutput(command, [], {
+        return exec.exec(command, [], {
             env: (0, utils_1.mergeWithProcessEnvVars)(envVars),
             ignoreReturnCode: true,
             failOnStdErr: false
         });
-        return Promise.resolve(execOutput.exitCode);
     }
     async uploadArtifact(artifactName, artifactFiles) {
         await this.artifactClient.uploadArtifact(artifactName, artifactFiles, '.');
@@ -99557,9 +99556,12 @@ exports.RuntimeDependencies = RuntimeDependencies;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = void 0;
+exports.run = exports.MESSAGES = void 0;
 const utils_1 = __nccwpck_require__(1314);
-const INTERNAL_OUTFILE = 'salesforceCodeAnalyzerResults.json';
+const INTERNAL_OUTFILE = 'SalesforceCodeAnalyzerResults.json';
+exports.MESSAGES = {
+    MISSING_NORMALIZE_SEVERITY: 'Missing required --normalize-severity option from run-arguments input.'
+};
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
@@ -99572,6 +99574,7 @@ async function run(dependencies) {
         // * Verify that sfdx-scanner plugin is installed (and if not, then install it as a separate step)
         // * Echo version of sfdx-scanner in use
         const inputs = dependencies.getInputs();
+        validateInputs(inputs);
         dependencies.endGroup();
         dependencies.startGroup('Running Salesforce Code Analyzer');
         const command = `sf scanner ${inputs.runCommand} ${inputs.runArgs}`;
@@ -99607,6 +99610,11 @@ async function run(dependencies) {
     }
 }
 exports.run = run;
+function validateInputs(inputs) {
+    if (!inputs.runArgs.toLowerCase().includes('--normalize-severity')) {
+        throw new Error(exports.MESSAGES.MISSING_NORMALIZE_SEVERITY);
+    }
+}
 
 
 /***/ }),
