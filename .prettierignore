@@ -1,3 +1,4 @@
 dist/
+dist_local/
 node_modules/
 coverage/

@@ -99639,14 +99639,13 @@ exports.mergeWithProcessEnvVars = mergeWithProcessEnvVars;
  */
 function extractOutfileFromRunArguments(runArgs) {
     const spaceMarker = '<<SPACE>>';
-    const eqMarker = '<<EQ>>';
     let markedRunArgs = markSpacesBetweenQuotes(runArgs, spaceMarker);
     markedRunArgs = markedRunArgs.replace(/ +/g, ' ');
     const parts = markedRunArgs.split(' ');
     for (let i = 0; i < parts.length; i++) {
         const partLower = parts[i].toLowerCase();
         if ((partLower === '-o' || partLower === '--outfile') && i < parts.length - 1) {
-            return parts[i + 1].replaceAll(spaceMarker, ' ').replaceAll(eqMarker, '=');
+            return parts[i + 1].replaceAll(spaceMarker, ' ');
         }
         else if (partLower.startsWith('-o=')) {
             return parts[i].substring(3);

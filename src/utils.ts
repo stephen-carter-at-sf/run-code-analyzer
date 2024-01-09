@@ -21,14 +21,13 @@ export function mergeWithProcessEnvVars(envVars: EnvironmentVariables): Environm
  */
 export function extractOutfileFromRunArguments(runArgs: string): string {
     const spaceMarker = '<<SPACE>>'
-    const eqMarker = '<<EQ>>'
     let markedRunArgs: string = markSpacesBetweenQuotes(runArgs, spaceMarker)
     markedRunArgs = markedRunArgs.replace(/ +/g, ' ')
     const parts: string[] = markedRunArgs.split(' ')
     for (let i = 0; i < parts.length; i++) {
         const partLower = parts[i].toLowerCase()
         if ((partLower === '-o' || partLower === '--outfile') && i < parts.length - 1) {
-            return parts[i + 1].replaceAll(spaceMarker, ' ').replaceAll(eqMarker, '=')
+            return parts[i + 1].replaceAll(spaceMarker, ' ')
         } else if (partLower.startsWith('-o=')) {
             return parts[i].substring(3)
         } else if (partLower.startsWith('--outfile=')) {
